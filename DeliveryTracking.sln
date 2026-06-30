@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTracking.Shared", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTracking.UnitTests", "DeliveryTracking.UnitTests\DeliveryTracking.UnitTests.csproj", "{538013AD-D2A0-47B1-A5DB-D1B35C50A0E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryTracking.Persistence.SqlServer", "DeliveryTracking.Persistence.SqlServer\DeliveryTracking.Persistence.SqlServer.csproj", "{62ED8FCB-A192-43C5-A8AD-2B738127F167}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,18 @@ Global
 		{538013AD-D2A0-47B1-A5DB-D1B35C50A0E1}.Release|x64.Build.0 = Release|Any CPU
 		{538013AD-D2A0-47B1-A5DB-D1B35C50A0E1}.Release|x86.ActiveCfg = Release|Any CPU
 		{538013AD-D2A0-47B1-A5DB-D1B35C50A0E1}.Release|x86.Build.0 = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|x64.Build.0 = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Debug|x86.Build.0 = Debug|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|x64.ActiveCfg = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|x64.Build.0 = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|x86.ActiveCfg = Release|Any CPU
+		{62ED8FCB-A192-43C5-A8AD-2B738127F167}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

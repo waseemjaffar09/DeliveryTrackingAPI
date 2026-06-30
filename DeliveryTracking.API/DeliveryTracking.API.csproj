@@ -24,6 +24,7 @@
     <ProjectReference Include="..\DeliveryTracking.Application\DeliveryTracking.Application.csproj" />
     <ProjectReference Include="..\DeliveryTracking.Infrastructure\DeliveryTracking.Infrastructure.csproj" />
     <ProjectReference Include="..\DeliveryTracking.Persistence\DeliveryTracking.Persistence.csproj" />
+    <ProjectReference Include="..\DeliveryTracking.Persistence.SqlServer\DeliveryTracking.Persistence.SqlServer.csproj" />
     <ProjectReference Include="..\DeliveryTracking.Shared\DeliveryTracking.Shared.csproj" />
   </ItemGroup>
 

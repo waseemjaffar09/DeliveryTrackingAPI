@@ -11,6 +11,11 @@ namespace DeliveryTracking.Persistence.DependencyInjection
 {
     public static class PersistenceServiceRegistration
     {
+        // Migrations assemblies per provider. Each provider keeps its own migrations
+        // and model snapshot in a dedicated assembly so both can coexist.
+        private const string PostgreSqlMigrationsAssembly = "DeliveryTracking.Persistence";
+        private const string SqlServerMigrationsAssembly = "DeliveryTracking.Persistence.SqlServer";
+
         public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -19,8 +24,26 @@ namespace DeliveryTracking.Persistence.DependencyInjection
                 throw new InvalidOperationException("Connection string 'DefaultConnection' was not found. Please configure it in appsettings.json or environment variables.");
             }
 
+            // Choose the database provider. Defaults to PostgreSQL (used on Render).
+            // Override via the "DatabaseProvider" environment variable or appsettings
+            // value: "PostgreSQL" or "SqlServer".
+            var provider = Environment.GetEnvironmentVariable("DatabaseProvider")
+                ?? configuration["DatabaseProvider"]
+                ?? "PostgreSQL";
+
             services.AddDbContext<DeliveryTrackingDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            {
+                if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.UseSqlServer(connectionString, sql =>
+                        sql.MigrationsAssembly(SqlServerMigrationsAssembly));
+                }
+                else
+                {
+                    options.UseNpgsql(connectionString, npgsql =>
+                        npgsql.MigrationsAssembly(PostgreSqlMigrationsAssembly));
+                }
+            });
 
             // Register generic repository
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
