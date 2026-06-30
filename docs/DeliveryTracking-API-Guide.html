@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeliveryTracking API — Complete Flow Guide</title>
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --manager: #7c3aed;
+        --rider: #ea580c;
+        --success: #16a34a;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #1e293b;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --get: #16a34a;
+        --post: #2563eb;
+        --put: #d97706;
+        --code-bg: #1e293b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        padding: 0;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+    header {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: #fff;
+        padding: 56px 24px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    header h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+    header p { font-size: 1.15rem; opacity: 0.92; max-width: 640px; margin: 0 auto; }
+    header .meta {
+        margin-top: 24px; display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+    header .meta span {
+        background: rgba(255,255,255,0.18); padding: 8px 16px; border-radius: 999px;
+        font-size: 0.9rem; font-weight: 500; backdrop-filter: blur(6px);
+    }
+
+    section { margin-top: 48px; }
+
+    h2 {
+        font-size: 1.7rem; font-weight: 700; margin-bottom: 8px; color: var(--text);
+        display: flex; align-items: center; gap: 12px;
+    }
+    h2 .emoji { font-size: 1.6rem; }
+    .section-sub { color: var(--muted); margin-bottom: 24px; font-size: 1rem; }
+
+    .card {
+        background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+        padding: 24px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+
+    .endpoint-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .method {
+        font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+        font-weight: 700; font-size: 0.78rem; padding: 5px 12px; border-radius: 6px;
+        color: #fff; letter-spacing: 0.5px; min-width: 56px; text-align: center;
+    }
+    .method.get { background: var(--get); }
+    .method.post { background: var(--post); }
+    .method.put { background: var(--put); }
+    .method.ws  { background: #0891b2; }
+
+    .path {
+        font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+        font-size: 0.95rem; font-weight: 600; color: var(--text);
+        background: #f1f5f9; padding: 5px 10px; border-radius: 6px;
+    }
+
+    .badge {
+        font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+        text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .badge.public  { background: #dcfce7; color: #15803d; }
+    .badge.any     { background: #e0e7ff; color: #4338ca; }
+    .badge.manager { background: #ede9fe; color: #6d28d9; }
+    .badge.rider   { background: #ffedd5; color: #c2410c; }
+
+    .card .desc { color: var(--muted); margin-bottom: 14px; }
+    .card .desc strong { color: var(--text); }
+
+    pre {
+        background: var(--code-bg); color: #e2e8f0; padding: 16px 18px; border-radius: 10px;
+        overflow-x: auto; font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+        font-size: 0.86rem; line-height: 1.55; margin: 10px 0;
+    }
+    pre .key { color: #7dd3fc; }
+    pre .str { color: #86efac; }
+    pre .num { color: #fca5a5; }
+    pre .cmt { color: #64748b; font-style: italic; }
+
+    .returns {
+        background: #f0fdf4; border-left: 4px solid var(--success); padding: 10px 14px;
+        border-radius: 0 8px 8px 0; font-size: 0.9rem; margin-top: 10px;
+    }
+    .returns strong { color: var(--success); }
+
+    table {
+        width: 100%; border-collapse: collapse; background: var(--card);
+        border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        font-size: 0.9rem;
+    }
+    th {
+        background: #f1f5f9; text-align: left; padding: 14px 16px; font-weight: 700;
+        color: var(--text); border-bottom: 2px solid var(--border);
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    td .mini-method {
+        font-family: monospace; font-weight: 700; font-size: 0.75rem; padding: 3px 8px;
+        border-radius: 5px; color: #fff;
+    }
+
+    .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 720px) { .ref-grid { grid-template-columns: 1fr; } }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill {
+        background: #f1f5f9; border: 1px solid var(--border); padding: 6px 12px;
+        border-radius: 8px; font-size: 0.85rem; font-family: monospace; font-weight: 600;
+    }
+    .pill .n { color: var(--primary); }
+
+    .flow-col { border-radius: 14px; padding: 24px; color: #fff; }
+    .flow-col.manager { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+    .flow-col.rider   { background: linear-gradient(135deg, #ea580c, #c2410c); }
+    .flow-col h3 { font-size: 1.3rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .flow-step {
+        background: rgba(255,255,255,0.14); border-radius: 10px; padding: 12px 16px;
+        margin-bottom: 10px; backdrop-filter: blur(4px);
+    }
+    .flow-step .num {
+        display: inline-block; width: 24px; height: 24px; background: #fff; color: var(--text);
+        border-radius: 50%; text-align: center; line-height: 24px; font-weight: 700;
+        font-size: 0.8rem; margin-right: 8px;
+    }
+    .flow-step code { background: rgba(0,0,0,0.25); padding: 2px 7px; border-radius: 5px; font-size: 0.8rem; }
+    .flow-step .status { font-size: 0.82rem; opacity: 0.9; display: block; margin-top: 4px; margin-left: 32px; }
+
+    .journey {
+        background: var(--code-bg); color: #e2e8f0; border-radius: 14px; padding: 24px;
+        font-family: 'SF Mono', Consolas, monospace; font-size: 0.82rem; line-height: 1.7;
+        overflow-x: auto; white-space: pre;
+    }
+
+    .note-box {
+        background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px 24px;
+    }
+    .note-box ul { list-style: none; }
+    .note-box li { padding: 8px 0; padding-left: 28px; position: relative; }
+    .note-box li::before { content: "??"; position: absolute; left: 0; }
+    .note-box li strong { color: var(--primary-dark); }
+
+    .status-flow {
+        display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+    }
+    .status-flow .s {
+        padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+        background: #f1f5f9; border: 1px solid var(--border);
+    }
+    .status-flow .arrow { color: var(--muted); font-weight: 700; }
+    .status-flow .s.done { background: #dcfce7; border-color: #86efac; color: #15803d; }
+
+    footer {
+        text-align: center; margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border);
+        color: var(--muted); font-size: 0.88rem;
+    }
+
+    .toc { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; justify-content: center; }
+    .toc a {
+        text-decoration: none; color: var(--primary); background: #fff; border: 1px solid var(--border);
+        padding: 8px 16px; border-radius: 999px; font-size: 0.88rem; font-weight: 600; transition: all 0.15s;
+    }
+    .toc a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>?? DeliveryTracking API</h1>
+    <p>Complete user-perspective flow guide — how Managers and Riders interact with the system from registration to delivery.</p>
+    <div class="meta">
+        <span>?? Base URL: https://localhost:7113</span>
+        <span>?? JWT Bearer Auth</span>
+        <span>? .NET 9 · Clean Architecture</span>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="toc">
+        <a href="#reference">Reference</a>
+        <a href="#shared">Shared APIs</a>
+        <a href="#manager">Manager Flow</a>
+        <a href="#rider">Rider Flow</a>
+        <a href="#realtime">Real-Time Tracking</a>
+        <a href="#journey">End-to-End Journey</a>
+        <a href="#table">API Reference Table</a>
+        <a href="#notes">Design Notes</a>
+    </div>
+
+    <!-- REFERENCE -->
+    <section id="reference">
+        <h2><span class="emoji">??</span> Reference Values</h2>
+        <p class="section-sub">Enum values used across the API requests and responses.</p>
+        <div class="ref-grid">
+            <div class="card">
+                <strong>UserRole</strong>
+                <div class="pill-row">
+                    <span class="pill"><span class="n">1</span> = Manager</span>
+                    <span class="pill"><span class="n">2</span> = Rider</span>
+                </div>
+            </div>
+            <div class="card">
+                <strong>Authentication</strong>
+                <p class="desc" style="margin-top:8px;margin-bottom:0;">Send the access token on every protected call:<br>
+                <code style="font-family:monospace;background:#f1f5f9;padding:3px 8px;border-radius:5px;display:inline-block;margin-top:6px;">Authorization: Bearer {token}</code></p>
+            </div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+            <strong>OrderStatus Lifecycle</strong>
+            <div class="status-flow">
+                <span class="s"><b>1</b> Pending</span><span class="arrow">?</span>
+                <span class="s"><b>2</b> Assigned</span><span class="arrow">?</span>
+                <span class="s"><b>3</b> Accepted</span><span class="arrow">?</span>
+                <span class="s"><b>4</b> PickedUp</span><span class="arrow">?</span>
+                <span class="s"><b>5</b> OnTheWay</span><span class="arrow">?</span>
+                <span class="s done"><b>6</b> Delivered ?</span>
+            </div>
+            <p class="desc" style="margin-top:12px;margin-bottom:0;">Terminal states: <code style="background:#fee2e2;color:#b91c1c;padding:2px 7px;border-radius:5px;">7 Cancelled</code> &nbsp; <code style="background:#fee2e2;color:#b91c1c;padding:2px 7px;border-radius:5px;">8 Failed</code></p>
+        </div>
+    </section>
+
+    <!-- SHARED -->
+    <section id="shared">
+        <h2><span class="emoji">??</span> Shared APIs <span style="font-size:0.95rem;font-weight:500;color:var(--muted);">(Both Manager &amp; Rider)</span></h2>
+        <p class="section-sub">Account, authentication and notification setup — used by everyone.</p>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/register</span>
+                <span class="badge public">Public</span>
+            </div>
+            <p class="desc">Create a new <strong>Manager</strong> or <strong>Rider</strong> account.</p>
+<pre><span class="key">"fullName"</span>: <span class="str">"John Manager"</span>,
+<span class="key">"email"</span>: <span class="str">"john@delivery.com"</span>,
+<span class="key">"password"</span>: <span class="str">"Pass123"</span>,
+<span class="key">"phoneNumber"</span>: <span class="str">"+1234567890"</span>,
+<span class="key">"role"</span>: <span class="num">1</span>          <span class="cmt">// 1 = Manager, 2 = Rider</span></pre>
+            <div class="returns"><strong>Returns:</strong> UserId, FullName, Email, Role, Token, RefreshToken, RefreshTokenExpiryTime</div>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/login</span>
+                <span class="badge public">Public</span>
+            </div>
+            <p class="desc">Authenticate and receive tokens. <strong>Save the Token &amp; RefreshToken</strong> — the Token is required for all future calls.</p>
+<pre><span class="key">"email"</span>: <span class="str">"john@delivery.com"</span>,
+<span class="key">"password"</span>: <span class="str">"Pass123"</span></pre>
+            <div class="returns"><strong>Returns:</strong> Access Token + RefreshToken</div>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/refresh-token</span>
+                <span class="badge public">Public</span>
+            </div>
+            <p class="desc">Get a fresh access token when the current one expires (after 60 min) — <strong>without re-login</strong>.</p>
+<pre><span class="key">"token"</span>: <span class="str">"expired-jwt"</span>,
+<span class="key">"refreshToken"</span>: <span class="str">"your-refresh-token"</span></pre>
+            <div class="returns"><strong>Returns:</strong> New Token + new RefreshToken (rotated)</div>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/notifications/device-token</span>
+                <span class="badge any">Any Logged-in</span>
+            </div>
+            <p class="desc">Register a device for <strong>push notifications</strong> (e.g. "order assigned").</p>
+<pre><span class="key">"token"</span>: <span class="str">"firebase-device-token"</span>,
+<span class="key">"platform"</span>: <span class="str">"Android"</span></pre>
+        </div>
+    </section>
+
+    <!-- MANAGER -->
+    <section id="manager">
+        <h2><span class="emoji">??</span> Manager Flow</h2>
+        <p class="section-sub">Manager logs in with <code style="background:#ede9fe;color:#6d28d9;padding:2px 7px;border-radius:5px;">role: 1</code>, then creates orders, assigns riders and monitors deliveries.</p>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/orders</span>
+                <span class="badge manager">Manager Only</span>
+            </div>
+            <p class="desc">Create a new delivery order ? starts as <strong>Pending (1)</strong>.</p>
+<pre><span class="key">"orderNumber"</span>: <span class="str">"ORD-1001"</span>,
+<span class="key">"customerName"</span>: <span class="str">"Alice Smith"</span>,
+<span class="key">"customerPhone"</span>: <span class="str">"+1987654321"</span>,
+<span class="key">"address"</span>: <span class="str">"123 Main St, City"</span>,
+<span class="key">"latitude"</span>: <span class="num">40.7128</span>,
+<span class="key">"longitude"</span>: <span class="num">-74.0060</span></pre>
+            <div class="returns"><strong>Returns:</strong> OrderId + full order details</div>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/api/orders</span>
+                <span class="badge any">Any Logged-in</span>
+            </div>
+            <p class="desc">View <strong>all orders</strong> and their current status.</p>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/api/orders/{id}</span>
+                <span class="badge any">Any Logged-in</span>
+            </div>
+            <p class="desc">View details &amp; status of a <strong>single order</strong>.</p>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method put">PUT</span>
+                <span class="path">/api/orders/{orderId}/assign-rider/{riderId}</span>
+                <span class="badge manager">Manager Only</span>
+            </div>
+            <p class="desc">Assign an order to a rider ? status becomes <strong>Assigned (2)</strong>, rider is notified.</p>
+<pre><span class="cmt">PUT /api/orders/a1b2.../assign-rider/c3d4...</span></pre>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/api/location/rider/{riderId}</span>
+                <span class="badge manager">Manager Only</span>
+            </div>
+            <p class="desc">Get a rider's <strong>live GPS position</strong> for map tracking.</p>
+            <div class="returns"><strong>Returns:</strong> RiderId, Latitude, Longitude, UpdatedAt</div>
+        </div>
+    </section>
+
+    <!-- RIDER -->
+    <section id="rider">
+        <h2><span class="emoji">???</span> Rider Flow</h2>
+        <p class="section-sub">Rider logs in with <code style="background:#ffedd5;color:#c2410c;padding:2px 7px;border-radius:5px;">role: 2</code>, then accepts and fulfills assigned deliveries.</p>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/api/orders</span>
+                <span class="badge any">Any Logged-in</span>
+            </div>
+            <p class="desc">Check orders assigned to them.</p>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method put">PUT</span>
+                <span class="path">/api/orders/{orderId}/accept</span>
+                <span class="badge rider">Rider Only</span>
+            </div>
+            <p class="desc">Confirm they'll deliver ? status <strong>Assigned (2) ? Accepted (3)</strong>.</p>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method put">PUT</span>
+                <span class="path">/api/orders/{orderId}/pickup</span>
+                <span class="badge rider">Rider Only</span>
+            </div>
+            <p class="desc">Mark package collected ? status <strong>Accepted (3) ? PickedUp (4)</strong>.</p>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/api/location/update</span>
+                <span class="badge rider">Rider Only</span>
+            </div>
+            <p class="desc">Send GPS coordinates ? saved &amp; <strong>broadcast live to managers via SignalR</strong>. Call repeatedly while moving.</p>
+<pre><span class="key">"latitude"</span>: <span class="num">40.7150</span>,
+<span class="key">"longitude"</span>: <span class="num">-74.0080</span></pre>
+        </div>
+
+        <div class="card">
+            <div class="endpoint-head">
+                <span class="method put">PUT</span>
+                <span class="path">/api/orders/{orderId}/complete</span>
+                <span class="badge rider">Rider Only</span>
+            </div>
+            <p class="desc">Finish the delivery ? status <strong>PickedUp (4) ? Delivered (6)</strong> ?</p>
+        </div>
+    </section>
+
+    <!-- REALTIME -->
+    <section id="realtime">
+        <h2><span class="emoji">??</span> Real-Time Tracking (SignalR)</h2>
+        <p class="section-sub">Hub URL: <code style="background:#f1f5f9;padding:3px 8px;border-radius:5px;">/hubs/tracking</code></p>
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Who</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code style="font-family:monospace;color:var(--manager);font-weight:600;">JoinManagerGroup(managerId)</code></td>
+                    <td><span class="badge manager">Manager</span></td>
+                    <td>Subscribe to <strong>live rider location updates</strong></td>
+                </tr>
+                <tr>
+                    <td><code style="font-family:monospace;color:var(--rider);font-weight:600;">JoinRiderGroup(riderId)</code></td>
+                    <td><span class="badge rider">Rider</span></td>
+                    <td>Join personal channel</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="returns" style="margin-top:16px;">
+            <strong>How it connects:</strong> When a Rider calls <code style="background:#dcfce7;padding:2px 6px;border-radius:4px;">POST /api/location/update</code>, the server pushes coordinates in real-time to all Managers in the <code style="background:#dcfce7;padding:2px 6px;border-radius:4px;">managers</code> group ? live map tracking without polling.
+        </div>
+    </section>
+
+    <!-- JOURNEY -->
+    <section id="journey">
+        <h2><span class="emoji">??</span> Complete End-to-End Journey</h2>
+        <p class="section-sub">Side-by-side view of how a Manager and Rider collaborate on one order.</p>
+        <div class="ref-grid">
+            <div class="flow-col manager">
+                <h3>?? Manager</h3>
+                <div class="flow-step"><span class="num">1</span>Register / Login <code>role=1</code></div>
+                <div class="flow-step"><span class="num">2</span><code>POST /api/orders</code><span class="status">? Order: Pending (1)</span></div>
+                <div class="flow-step"><span class="num">3</span><code>PUT .../assign-rider/{id}</code><span class="status">? Order: Assigned (2)</span></div>
+                <div class="flow-step"><span class="num">7</span><code>GET /api/location/rider/{id}</code><span class="status">live tracking via SignalR</span></div>
+                <div class="flow-step"><span class="num">9</span><code>GET /api/orders/{id}</code><span class="status">sees Delivered ?</span></div>
+            </div>
+            <div class="flow-col rider">
+                <h3>??? Rider</h3>
+                <div class="flow-step"><span class="num">1</span>Register / Login <code>role=2</code></div>
+                <div class="flow-step"><span class="num">4</span><code>PUT .../{id}/accept</code><span class="status">? Order: Accepted (3)</span></div>
+                <div class="flow-step"><span class="num">5</span><code>PUT .../{id}/pickup</code><span class="status">? Order: PickedUp (4)</span></div>
+                <div class="flow-step"><span class="num">6</span><code>POST /api/location/update</code><span class="status">streams GPS repeatedly</span></div>
+                <div class="flow-step"><span class="num">8</span><code>PUT .../{id}/complete</code><span class="status">? Order: Delivered (6) ?</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TABLE -->
+    <section id="table">
+        <h2><span class="emoji">??</span> Quick API Reference Table</h2>
+        <p class="section-sub">Every endpoint at a glance.</p>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Method</th><th>Endpoint</th><th>Access</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/auth/register</code></td><td><span class="badge public">Public</span></td><td>Create account</td></tr>
+                <tr><td>2</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/auth/login</code></td><td><span class="badge public">Public</span></td><td>Get tokens</td></tr>
+                <tr><td>3</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/auth/refresh-token</code></td><td><span class="badge public">Public</span></td><td>Renew token</td></tr>
+                <tr><td>4</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/notifications/device-token</code></td><td><span class="badge any">Any</span></td><td>Push setup</td></tr>
+                <tr><td>5</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/orders</code></td><td><span class="badge manager">Manager</span></td><td>Create order</td></tr>
+                <tr><td>6</td><td><span class="mini-method" style="background:var(--get)">GET</span></td><td><code>/api/orders</code></td><td><span class="badge any">Any</span></td><td>List orders</td></tr>
+                <tr><td>7</td><td><span class="mini-method" style="background:var(--get)">GET</span></td><td><code>/api/orders/{id}</code></td><td><span class="badge any">Any</span></td><td>Order details</td></tr>
+                <tr><td>8</td><td><span class="mini-method" style="background:var(--put)">PUT</span></td><td><code>/api/orders/{orderId}/assign-rider/{riderId}</code></td><td><span class="badge manager">Manager</span></td><td>Assign rider</td></tr>
+                <tr><td>9</td><td><span class="mini-method" style="background:var(--put)">PUT</span></td><td><code>/api/orders/{orderId}/accept</code></td><td><span class="badge rider">Rider</span></td><td>Accept order</td></tr>
+                <tr><td>10</td><td><span class="mini-method" style="background:var(--put)">PUT</span></td><td><code>/api/orders/{orderId}/pickup</code></td><td><span class="badge rider">Rider</span></td><td>Pick up</td></tr>
+                <tr><td>11</td><td><span class="mini-method" style="background:var(--put)">PUT</span></td><td><code>/api/orders/{orderId}/complete</code></td><td><span class="badge rider">Rider</span></td><td>Deliver</td></tr>
+                <tr><td>12</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/location/update</code></td><td><span class="badge rider">Rider</span></td><td>Send GPS</td></tr>
+                <tr><td>13</td><td><span class="mini-method" style="background:var(--get)">GET</span></td><td><code>/api/location/rider/{riderId}</code></td><td><span class="badge manager">Manager</span></td><td>Track GPS</td></tr>
+                <tr><td>—</td><td><span class="mini-method" style="background:#0891b2">WS</span></td><td><code>/hubs/tracking</code></td><td><span class="badge any">Any</span></td><td>Live updates</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- NOTES -->
+    <section id="notes">
+        <h2><span class="emoji">???</span> Key Design Notes</h2>
+        <div class="note-box">
+            <ul>
+                <li><strong>Security:</strong> Rider / Manager IDs come from the <strong>JWT token</strong> (via CurrentUserService), not request bodies — this prevents ID spoofing.</li>
+                <li><strong>Role enforcement:</strong> <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">[Authorize(Policy = "ManagerOnly")]</code> and <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">"RiderOnly"</code> guard each endpoint.</li>
+                <li><strong>Order lifecycle:</strong> Strictly sequential — each status transition (Pending ? Assigned ? Accepted ? PickedUp ? Delivered) is validated inside its handler.</li>
+                <li><strong>Token rotation:</strong> Each refresh issues a brand-new refresh token for added security.</li>
+                <li><strong>Real-time:</strong> SignalR pushes live rider locations to managers instantly — no polling required.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <p><strong>DeliveryTracking API</strong> — Built with .NET 9, Clean Architecture, MediatR (CQRS), JWT Auth, FluentValidation, Serilog &amp; SignalR.</p>
+        <p style="margin-top:6px;">Generated for onboarding &amp; integration reference.</p>
+    </footer>
+
+</div>
+</body>
+</html>
