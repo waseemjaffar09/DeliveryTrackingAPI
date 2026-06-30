@@ -20,7 +20,7 @@ namespace DeliveryTracking.Persistence.DependencyInjection
             }
 
             services.AddDbContext<DeliveryTrackingDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseNpgsql(connectionString));
 
             // Register generic repository
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using DeliveryTracking.Application.DependencyInjection;
 using DeliveryTracking.Persistence.DependencyInjection;
+using DeliveryTracking.Persistence.Context;
 using DeliveryTracking.Infrastructure.DependencyInjection;
 using DeliveryTracking.Infrastructure.Authentication;
 using DeliveryTracking.Infrastructure.SignalR;
@@ -95,6 +97,14 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Apply any pending EF Core migrations on startup so the database schema is
+// created/updated automatically (important for cloud hosts like Render).
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryTrackingDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure HTTP pipeline
 // Swagger is enabled in all environments so the deployed API can be explored/tested
