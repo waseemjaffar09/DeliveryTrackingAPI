@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeliveryTracking API — Complete Flow Guide</title>
+<title>DeliveryTracking API ï¿½ Complete Flow Guide</title>
 <style>
     :root {
         --primary: #2563eb;
@@ -197,11 +197,11 @@
 
 <header>
     <h1>?? DeliveryTracking API</h1>
-    <p>Complete user-perspective flow guide — how Managers and Riders interact with the system from registration to delivery.</p>
+    <p>Complete user-perspective flow guide ï¿½ how Managers and Riders interact with the system from registration to delivery.</p>
     <div class="meta">
         <span>?? Base URL: https://localhost:7113</span>
         <span>?? JWT Bearer Auth</span>
-        <span>? .NET 9 · Clean Architecture</span>
+        <span>? .NET 9 ï¿½ Clean Architecture</span>
     </div>
 </header>
 
@@ -253,7 +253,7 @@
     <!-- SHARED -->
     <section id="shared">
         <h2><span class="emoji">??</span> Shared APIs <span style="font-size:0.95rem;font-weight:500;color:var(--muted);">(Both Manager &amp; Rider)</span></h2>
-        <p class="section-sub">Account, authentication and notification setup — used by everyone.</p>
+        <p class="section-sub">Account, authentication and notification setup ï¿½ used by everyone.</p>
 
         <div class="card">
             <div class="endpoint-head">
@@ -276,7 +276,7 @@
                 <span class="path">/api/auth/login</span>
                 <span class="badge public">Public</span>
             </div>
-            <p class="desc">Authenticate and receive tokens. <strong>Save the Token &amp; RefreshToken</strong> — the Token is required for all future calls.</p>
+            <p class="desc">Authenticate and receive tokens. <strong>Save the Token &amp; RefreshToken</strong> ï¿½ the Token is required for all future calls.</p>
 <pre><span class="key">"email"</span>: <span class="str">"john@delivery.com"</span>,
 <span class="key">"password"</span>: <span class="str">"Pass123"</span></pre>
             <div class="returns"><strong>Returns:</strong> Access Token + RefreshToken</div>
@@ -288,7 +288,7 @@
                 <span class="path">/api/auth/refresh-token</span>
                 <span class="badge public">Public</span>
             </div>
-            <p class="desc">Get a fresh access token when the current one expires (after 60 min) — <strong>without re-login</strong>.</p>
+            <p class="desc">Get a fresh access token when the current one expires (after 60 min) ï¿½ <strong>without re-login</strong>.</p>
 <pre><span class="key">"token"</span>: <span class="str">"expired-jwt"</span>,
 <span class="key">"refreshToken"</span>: <span class="str">"your-refresh-token"</span></pre>
             <div class="returns"><strong>Returns:</strong> New Token + new RefreshToken (rotated)</div>
@@ -491,7 +491,7 @@
                 <tr><td>11</td><td><span class="mini-method" style="background:var(--put)">PUT</span></td><td><code>/api/orders/{orderId}/complete</code></td><td><span class="badge rider">Rider</span></td><td>Deliver</td></tr>
                 <tr><td>12</td><td><span class="mini-method" style="background:var(--post)">POST</span></td><td><code>/api/location/update</code></td><td><span class="badge rider">Rider</span></td><td>Send GPS</td></tr>
                 <tr><td>13</td><td><span class="mini-method" style="background:var(--get)">GET</span></td><td><code>/api/location/rider/{riderId}</code></td><td><span class="badge manager">Manager</span></td><td>Track GPS</td></tr>
-                <tr><td>—</td><td><span class="mini-method" style="background:#0891b2">WS</span></td><td><code>/hubs/tracking</code></td><td><span class="badge any">Any</span></td><td>Live updates</td></tr>
+                <tr><td>ï¿½</td><td><span class="mini-method" style="background:#0891b2">WS</span></td><td><code>/hubs/tracking</code></td><td><span class="badge any">Any</span></td><td>Live updates</td></tr>
             </tbody>
         </table>
     </section>
@@ -501,17 +501,17 @@
         <h2><span class="emoji">???</span> Key Design Notes</h2>
         <div class="note-box">
             <ul>
-                <li><strong>Security:</strong> Rider / Manager IDs come from the <strong>JWT token</strong> (via CurrentUserService), not request bodies — this prevents ID spoofing.</li>
+                <li><strong>Security:</strong> Rider / Manager IDs come from the <strong>JWT token</strong> (via CurrentUserService), not request bodies ï¿½ this prevents ID spoofing.</li>
                 <li><strong>Role enforcement:</strong> <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">[Authorize(Policy = "ManagerOnly")]</code> and <code style="background:#dbeafe;padding:2px 6px;border-radius:4px;">"RiderOnly"</code> guard each endpoint.</li>
-                <li><strong>Order lifecycle:</strong> Strictly sequential — each status transition (Pending ? Assigned ? Accepted ? PickedUp ? Delivered) is validated inside its handler.</li>
+                <li><strong>Order lifecycle:</strong> Strictly sequential ï¿½ each status transition (Pending ? Assigned ? Accepted ? PickedUp ? Delivered) is validated inside its handler.</li>
                 <li><strong>Token rotation:</strong> Each refresh issues a brand-new refresh token for added security.</li>
-                <li><strong>Real-time:</strong> SignalR pushes live rider locations to managers instantly — no polling required.</li>
+                <li><strong>Real-time:</strong> SignalR pushes live rider locations to managers instantly ï¿½ no polling required.</li>
             </ul>
         </div>
     </section>
 
     <footer>
-        <p><strong>DeliveryTracking API</strong> — Built with .NET 9, Clean Architecture, MediatR (CQRS), JWT Auth, FluentValidation, Serilog &amp; SignalR.</p>
+        <p><strong>DeliveryTracking API</strong> ï¿½ Built with .NET 9, Clean Architecture, MediatR (CQRS), JWT Auth, FluentValidation, Serilog &amp; SignalR.</p>
         <p style="margin-top:6px;">Generated for onboarding &amp; integration reference.</p>
     </footer>
 

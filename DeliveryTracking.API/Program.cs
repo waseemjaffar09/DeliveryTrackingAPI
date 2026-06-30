@@ -97,17 +97,21 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 // Configure HTTP pipeline
+// Swagger is enabled in all environments so the deployed API can be explored/tested
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "DeliveryTracking API v1");
+});
+
+// Only redirect to HTTPS locally. On hosts like Render, TLS is terminated at the
+// proxy and traffic is forwarded as HTTP, so redirection would break requests.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DeliveryTracking API v1");
-    });
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();

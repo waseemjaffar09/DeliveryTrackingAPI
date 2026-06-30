@@ -1,0 +1,31 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# IDE / editor folders
+.vs/
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Logs (generated at runtime by Serilog)
+**/Logs/
+**/logs/
+
+# Docs & misc that aren't needed in the image
+docs/
+Readme/
+**/*.md
+
+# Local secrets / settings
+**/appsettings.*.local.json
+**/secrets.json
+**/firebase-*.json
+
+# OS files
+**/.DS_Store
+Thumbs.db
